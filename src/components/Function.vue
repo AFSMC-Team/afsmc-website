@@ -20,7 +20,7 @@
       <section id="banner" class="style3">
         <div class="inner">
           <span class="image">
-            <img src="@/assets/images/bg.png" alt="" />
+            <img src="https://i2.hdslb.com/bfs/new_dyn/0f9e7f06ad093dcbdd655b18f436e9a0193395356.png" alt="" />
           </span>
           <header class="major">
             <h1>便捷功能</h1>
