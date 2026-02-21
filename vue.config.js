@@ -1,5 +1,6 @@
+// vue.config.js
 module.exports = {
-  transpileDependencies: ['vue-router'],
+  transpileDependencies: ['vue-router'],  // 强制转译 vue-router
 
   configureWebpack: {
     module: {
@@ -11,7 +12,7 @@ module.exports = {
             loader: 'babel-loader',
             options: {
               plugins: [
-                require.resolve('@babel/plugin-proposal-optional-chaining')
+                '@babel/plugin-proposal-optional-chaining'  // 直接用字符串，Vue CLI 默认有这个插件
               ]
             }
           }
