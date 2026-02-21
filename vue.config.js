@@ -1,23 +1,30 @@
 module.exports = {
-  // 如果你不需要部署到子目录，这两行可以完全删除
-  publicPath: process.env.NODE_ENV === 'production' ? '/' : '/',
+  // 保留你原有的（如果有 publicPath 可以删掉，因为都是 '/'）
+  // publicPath: process.env.NODE_ENV === 'production' ? '/' : '/',
 
-  // 核心修复：强制转译 vue-router（包括它的 .mjs 文件）
   transpileDependencies: [
     'vue-router'
   ],
 
-  // 可选：如果上面还不行，再加强处理 .mjs 文件（大多数情况不需要）
   chainWebpack: (config) => {
+    // 明确处理 .mjs 文件（虽然 transpileDependencies 已经包含，但保险起见）
     config.module
-      .rule('mjs')
-      .test(/\.mjs$/)
+      .rule('js')
+      .test(/\.m?js$/)  // 同时处理 .js 和 .mjs
       .include
-        .add(/node_modules/)
-        .add(/vue-router/)
+        .add(/node_modules[\\/]vue-router/)  // 只针对 vue-router，避免全转译慢
         .end()
       .use('babel-loader')
       .loader('babel-loader')
-      .end();
+      .tap(options => {
+        // 注入插件，确保 optional chaining 被转译
+        options.plugins = options.plugins || [];
+        options.plugins.push(
+          require.resolve('@babel/plugin-proposal-optional-chaining'),
+          // 如果还有其他新语法出错，再加这个
+          // require.resolve('@babel/plugin-proposal-nullish-coalescing-operator')
+        );
+        return options;
+      });
   }
 }
