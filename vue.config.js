@@ -1,30 +1,41 @@
 module.exports = {
-  // 保留你原有的（如果有 publicPath 可以删掉，因为都是 '/'）
+  // publicPath 如果都是 '/' 可以删掉
   // publicPath: process.env.NODE_ENV === 'production' ? '/' : '/',
 
-  transpileDependencies: [
-    'vue-router'
-  ],
+  transpileDependencies: ['vue-router'],
 
   chainWebpack: (config) => {
-    // 明确处理 .mjs 文件（虽然 transpileDependencies 已经包含，但保险起见）
+    // 先尝试修改已存在的 'js' rule（Vue CLI 默认有这个 rule）
     config.module
       .rule('js')
-      .test(/\.m?js$/)  // 同时处理 .js 和 .mjs
-      .include
-        .add(/node_modules[\\/]vue-router/)  // 只针对 vue-router，避免全转译慢
-        .end()
       .use('babel-loader')
-      .loader('babel-loader')
-      .tap(options => {
-        // 注入插件，确保 optional chaining 被转译
+      .tap((options = {}) => {  // 加默认 {} 防止 undefined
         options.plugins = options.plugins || [];
         options.plugins.push(
-          require.resolve('@babel/plugin-proposal-optional-chaining'),
-          // 如果还有其他新语法出错，再加这个
+          require.resolve('@babel/plugin-proposal-optional-chaining')
+          // 如果后续日志又有 ?? 语法，再加：
           // require.resolve('@babel/plugin-proposal-nullish-coalescing-operator')
         );
         return options;
-      });
+      })
+      .end();
+
+    // 如果上面 rule('js') 不存在或没 babel-loader，再 fallback 创建一个针对 vue-router 的
+    // （但通常 Vue CLI 有 'js' rule，这个 fallback 很少触发）
+    if (!config.module.rules.has('js')) {
+      config.module
+        .rule('mjs-vue-router')
+        .test(/\.m?js$/)
+        .include
+          .add(/node_modules[\\/]vue-router/)
+          .end()
+        .use('babel-loader')
+        .loader('babel-loader')
+        .options({
+          plugins: [
+            require.resolve('@babel/plugin-proposal-optional-chaining')
+          ]
+        });
+    }
   }
-}
+};
