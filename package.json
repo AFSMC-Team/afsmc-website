@@ -9,7 +9,7 @@
   "dependencies": {
     "core-js": "^3.6.5",
     "vue": "^3.0.0",
-    "vue-router": "4.0.13"   // 这里改成这个！（或试 "4.1.6" 如果还报错）
+    "vue-router": "4.0.13"  
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "~4.5.0",
